@@ -5,45 +5,52 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
         <script src="/js/main.js" type="module"></script>
+        <link rel="stylesheet" href="/css/style.css" />
     </head>
     <body>
-        <!-- login -->
-        <form id="loginForm" action="">
-            <input
-                type="text"
-                style="display: block"
-                id="username"
-                placeholder="username"
-            />
-            <input
-                type="password"
-                style="display: block"
-                id="password"
-                placeholder="password"
-            />
-            <button type="submit">Login</button>
-        </form>
+        <div id="formsWrapper">
+            <form id="loginForm" action="">
+                <h3>Login</h3>
+                <input type="text" id="username" placeholder="Username" />
+                <input type="password" id="password" placeholder="Password" />
+                <button type="submit">Login</button>
+            </form>
 
-        <form id="registerForm" action="">
-            <input
-                type="text"
-                style="display: block"
-                id="email"
-                placeholder="email"
-            />
-            <input
-                type="text"
-                style="display: block"
-                id="registerUsername"
-                placeholder="username"
-            />
-            <input
-                type="password"
-                style="display: block"
-                id="registerPassword"
-                placeholder="password"
-            />
-            <button type="submit">register</button>
-        </form>
+            <form id="registerForm" action="">
+                <h3>Register</h3>
+                <input type="text" id="email" placeholder="Email" />
+                <input
+                    type="text"
+                    id="registerUsername"
+                    placeholder="Username"
+                />
+                <input
+                    type="password"
+                    id="registerPassword"
+                    placeholder="Password"
+                />
+                <button type="submit">Register</button>
+            </form>
+            <form id="createPostForm">
+                <input
+                    type="text"
+                    id="postTitle"
+                    placeholder="Post Title"
+                    required
+                />
+                <textarea
+                    id="postContent"
+                    placeholder="Write your post..."
+                    required
+                ></textarea>
+                <input
+                    type="text"
+                    id="postImageUrl"
+                    placeholder="Optional: Image URL"
+                />
+                <button type="submit">Create Post</button>
+            </form>
+        </div>
+        <div id="postsContainer"></div>
     </body>
 </html>
