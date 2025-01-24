@@ -6,7 +6,7 @@
 3. command line should respond with "server started on port: ****"
 
 ## Express.js Blog API
-This project is an Express.js-based RESTful API designed to handle a blogging platform with user authentication, post management, and commenting functionality. It integrates MySQL for database operations and uses JWT for secure user authentication.
+This project is an Express.js-based API designed to handle a blogging platform with user authentication, post management, and commenting functionality. It uses MySQL for database operations and uses JWT for secure user authentication.
 
 ## Features
 1. Authentication
