@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch --env-file=.env index.js"
-    },
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
