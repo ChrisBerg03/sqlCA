@@ -5,7 +5,7 @@ import mysql from "mysql2/promise";
 import bcrypt from "bcrypt";
 
 const port = process.env.PORT || 3000;
-const SECRET = process.env.JWT_SECRET || "your-secret-key";
+const SECRET = process.env.JWT_SECRET;
 
 const app = express();
 
@@ -22,23 +22,18 @@ const connection = await mysql.createConnection({
 });
 
 // Verify JWT Middleware
-function verifyToken(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        return res
-            .status(401)
-            .json({ error: "Authorization header is missing" });
-    }
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    const token = authHeader.split(" ")[1];
     try {
-        const payload = jwt.verify(token, SECRET);
-        req.user = payload;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = { userId: decoded.userId };
         next();
-    } catch (err) {
-        return res.status(401).json({ error: "Invalid or expired token" });
+    } catch (error) {
+        res.status(403).json({ message: "Forbidden" });
     }
-}
+};
 
 // GET All Posts
 app.get("/posts", async (req, res) => {
@@ -75,14 +70,18 @@ app.get("/posts/:postId/comments", async (req, res) => {
     }
 });
 
+// add a comment to a post.
 app.post("/posts/:postId/comments", verifyToken, async (req, res) => {
     const { postId } = req.params;
     const { comment } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId;
 
     try {
         if (!comment) {
             return res.status(400).json({ message: "Comment is required" });
+        }
+        if (!userId) {
+            return res.status(401).json({ message: "User not authenticated" });
         }
 
         const [result] = await connection.execute(
@@ -102,7 +101,7 @@ app.post("/posts/:postId/comments", verifyToken, async (req, res) => {
 
 app.post("/add-post", verifyToken, async (req, res) => {
     const { title, content, imageUrl } = req.body;
-    const userId = req.user.userId; // The authenticated user
+    const userId = req.user.userId;
 
     try {
         if (!title || !content) {
