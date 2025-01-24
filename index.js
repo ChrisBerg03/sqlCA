@@ -12,8 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create a MySQL connection
-const connection = await mysql.createConnection({
+const pool = mysql.createPool({
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
@@ -41,7 +40,7 @@ const verifyToken = async (req, res, next) => {
 // GET All Posts
 app.get("/posts", async (req, res) => {
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             "SELECT posts.id, posts.title, posts.content, posts.imageUrl, posts.created_at, users.username " +
                 "FROM posts " +
                 "JOIN users ON posts.user_id = users.user_id"
@@ -58,7 +57,7 @@ app.get("/posts/:postId/comments", async (req, res) => {
     const { postId } = req.params;
 
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             "SELECT comments.id, comments.comment, comments.created_at, users.username " +
                 "FROM comments " +
                 "JOIN users ON comments.user_id = users.user_id " +
@@ -87,7 +86,7 @@ app.post("/posts/:postId/comments", verifyToken, async (req, res) => {
             return res.status(401).json({ message: "User not authenticated" });
         }
 
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             "INSERT INTO comments (comment, user_id, post_id) VALUES (?, ?, ?)",
             [comment, userId, postId]
         );
@@ -114,7 +113,7 @@ app.post("/add-post", verifyToken, async (req, res) => {
         }
 
         // Insert the new post into the database
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             "INSERT INTO posts (title, content, imageUrl, user_id) VALUES (?, ?, ?, ?)",
             [title, content, imageUrl, userId]
         );
@@ -134,7 +133,7 @@ app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             "SELECT * FROM users WHERE username = ?",
             [username]
         );
@@ -170,7 +169,7 @@ app.post("/register", async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const [emailCheck] = await connection.execute(
+        const [emailCheck] = await pool.execute(
             "SELECT user_id FROM users WHERE email = ?",
             [email]
         );
@@ -179,7 +178,7 @@ app.post("/register", async (req, res) => {
             return res.status(409).json({ message: "Email already exists" });
         }
 
-        const [usernameCheck] = await connection.execute(
+        const [usernameCheck] = await pool.execute(
             "SELECT user_id FROM users WHERE username = ?",
             [username]
         );
@@ -190,7 +189,7 @@ app.post("/register", async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             "INSERT INTO users (email, username, password_hash) VALUES (?, ?, ?)",
             [email, username, hashedPassword]
         );
